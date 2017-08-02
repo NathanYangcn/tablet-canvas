@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        #canvas {
+            display: block;
+            background: #eee;
+            /*width: 100vw;*/ /* 不能使用css设置canvas的宽高 */
+            /*height: 100vh;*/
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        // 获取canvas元素
+        let canvas = document.getElementById('canvas');
+
+        // 获取视窗宽高
+        let clientWidth = document.documentElement.clientWidth;
+        let clientHeight = document.documentElement.clientHeight;
+
+        // 设置canvas宽高属性
+        canvas.width = clientWidth;
+        canvas.height = clientHeight;
+
+        // 获取 canvas 2d 画笔
+        let context = canvas.getContext('2d');
+
+        // 声明前一个点变量
+        let prePoint;
+
+        // 监听 canvas 元素的 touchmove 事件，两点连线并记录前一个点
+        canvas.addEventListener('touchmove', function (e) {
+            let { pageX, pageY } = e.touches[0];
+            // console.log(pageX, pageY);
+            // context.fillRect(pageX, pageY, 6, 6); // 方形
+            if (prePoint) {
+                context.strokeStyle = "orange";
+                context.lineWidth = 6;
+                context.lineCap = 3;
+                context.beginPath();
+                context.moveTo(prePoint.pageX, prePoint.pageY);
+                context.lineTo(pageX, pageY);
+                context.stroke();
+            }
+            prePoint = { pageX, pageY }
+        });
+
+        // 鼠标离开后将前一个点变量赋值为空，这样可以书写多条不连续的线段
+        canvas.addEventListener('touchend', function (e) {
+            prePoint = null;
+        });
+    </script>
+</body>
+</html>

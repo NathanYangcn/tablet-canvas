@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <style>
+        body {
+            overflow: hidden;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        #app {
+            height: 100vh;
+            background: #eee;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        let app = document.getElementById('app');
+        app.width = document.documentElement.clientWidth;
+
+        app.addEventListener('touchmove', function (e) {
+            let { pageX, pageY } = e.touches[0];
+
+             var div = document.createElement('div');
+             div.style.position = 'absolute';
+             div.style.top = pageY + 'px';
+             div.style.left = pageX + 'px';
+             div.style.width = '6px';
+             div.style.height = '6px';
+             div.style.borderRadius = '3px';
+             div.style.background = 'orange';
+             document.body.appendChild(div)
+        });
+    </script>
+</body>
+</html>
