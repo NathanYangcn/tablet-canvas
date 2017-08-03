@@ -6,6 +6,9 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <style>
+        body{
+            overflow: hidden;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -16,12 +19,39 @@
             /*width: 100vw;*/ /* 不能使用css设置canvas的宽高 */
             /*height: 100vh;*/
         }
+        .action {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     </style>
 </head>
 <body>
     <canvas id="canvas"></canvas>
+    <div class="action">
+        <label><input type="radio" name="penType" value="pen" checked>画笔</label>
+        <label><input type="radio" name="penType" value="eraser">橡皮</label>
+        <button id="save">预览</button>
+        <button id="clear">清空</button>
+    </div>
 
     <script>
+        var clientflag = 0; // 默认PC端
+        var CLICKMOVE = 'mousemove';
+        var CLICKEND = 'mouseup';
+        if (/AppleWebKit.*mobile/i.test(navigator.userAgent) || (/MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(navigator.userAgent))) {
+            if (window.location.href.indexOf("?mobile") < 0) {
+                clientflag = 1;//移动端
+                CLICKMOVE = 'touchmove';
+                CLICKEND = 'touchend';
+            } else {
+                clientflag = 0;//PC端
+                CLICKMOVE = 'mousemove';
+                CLICKEND = 'mouseup';
+            }
+        }
+
         // 获取canvas元素
         let canvas = document.getElementById('canvas');
 
@@ -35,31 +65,80 @@
 
         // 获取 canvas 2d 画笔
         let context = canvas.getContext('2d');
+        if (canvas.getContext) {
+            console.log('支持canvas', CLICKEND);
+        } else {
+            console.log('不支持canvas');
+        }
+
+        // PC端，当点击时，开始绘制，而不是一直绘制
+        var start = false;
+        canvas.addEventListener('mousedown', function (e) {
+            start = true;
+        });
 
         // 声明前一个点变量
         let prePoint;
 
-        // 监听 canvas 元素的 touchmove 事件，两点连线并记录前一个点
-        canvas.addEventListener('touchmove', function (e) {
-            let { pageX, pageY } = e.touches[0];
-            // console.log(pageX, pageY);
-            // context.fillRect(pageX, pageY, 6, 6); // 方形
-            if (prePoint) {
-                context.strokeStyle = "orange";
-                context.lineWidth = 6;
-                context.lineCap = 3;
-                context.beginPath();
-                context.moveTo(prePoint.pageX, prePoint.pageY);
-                context.lineTo(pageX, pageY);
-                context.stroke();
+        // 监听 canvas 元素的 touchmove 事件
+        canvas.addEventListener(CLICKMOVE, function (e) {
+            // console.log(e);
+            if ( (clientflag === 0) && (start === true) ) {
+                canvas.style.cursor = 'cell'; // 改变PC端的鼠标样式
+                draw(e) // 将绘制内容抽离为一个函数
             }
-            prePoint = { pageX, pageY }
+            if (clientflag === 1) {
+                draw(e)
+            }
+        });
+        
+        // 鼠标离开后将前一个点变量赋值为空，这样可以书写多条不连续的线段
+        canvas.addEventListener(CLICKEND, function (e) {
+            prePoint = null;
+            if (clientflag === 0) {
+                canvas.style.cursor = 'auto';
+                start = false;
+            }
         });
 
-        // 鼠标离开后将前一个点变量赋值为空，这样可以书写多条不连续的线段
-        canvas.addEventListener('touchend', function (e) {
-            prePoint = null;
-        });
+        // 绘画内容
+        function draw(e) {
+            let penType = document.querySelector('input[name="penType"]:checked').value; // 取 penType 的值
+            if (clientflag === 0) {
+                var { pageX, pageY } = e;
+            } else {
+                var { pageX, pageY } = e.touches[0]; // 拿到手指位置信息，此处为单点触控，所以角标为0
+            }
+            // console.log(pageX, pageY);
+            // context.fillRect(pageX, pageY, 6, 6); // 方形
+            if (penType === 'pen') { // 如果是画笔：两点连线并记录前一个点
+                if (prePoint) {
+                    context.strokeStyle = "orange";
+                    context.lineWidth = 6; // 路径宽度
+                    context.lineCap = 3; // 路径两端是半径为3px的圆角半圆
+                    context.beginPath(); // 开始路径
+                    context.moveTo(prePoint.pageX, prePoint.pageY); // 第一个点的位置
+                    context.lineTo(pageX, pageY); // 第二个点的位置：连线到该点
+                    context.stroke(); // 执行
+                }
+                prePoint = { pageX, pageY }
+            } else if (penType === 'eraser') { // 如果是橡皮：清除范围内痕迹
+                context.clearRect(pageX-10, pageY-10, 20, 20) // 清除绘制内容方法
+            }
+        }
+
+        // 预览效果
+        save.onclick = function(){
+            var canvas = document.getElementById("canvas");
+            var data = canvas.toDataURL("image/png"); // 保存图片URL
+            var newWindow = window.open('about:blank','image from canvas'); // 打开新窗口
+            newWindow.document.write("<img src='"+data+"' alt='from canvas'/>"); // 写入图片
+        };
+
+        // 清空画板内所有内容
+        clear.onclick = function () {
+            context.clearRect(0, 0, clientWidth, clientHeight) // 清空方法
+        };
     </script>
 </body>
 </html>
