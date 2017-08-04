@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <style>
+        *{margin: 0;padding: 0;}
+        body{
+            overflow: hidden;
+        }
+        #app{
+            background: #ddd;
+            display: block;
+        }
+        .actions{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 4px;
+        }
+    </style>
+</head>
+<body>
+<div class="actions">
+    <label><input type="radio" name="penType" value="pen" checked>笔</label>
+    <label><input type="radio" name="penType" value="eraser">橡皮擦</label>
+    <button id="save">保存</button>
+</div>
+<canvas id="app"></canvas>
+<script>
+    let canvas = document.querySelector('#app')
+    let clientWidth = document.documentElement.clientWidth
+    let clientHeight = document.documentElement.clientHeight
+    canvas.width = clientWidth
+    canvas.height = clientHeight
+
+    let context = canvas.getContext("2d");
+    let previousPoint
+
+    canvas.addEventListener('touchmove', function(e){
+        e.preventDefault()
+
+        let penType = document.querySelector('input[name="penType"]:checked').value
+        let {pageX,pageY}= e.touches[0]
+        if(penType === 'pen'){
+            if(previousPoint){
+                context.strokeStyle = 'green'
+                context.beginPath();
+                context.moveTo(previousPoint.pageX, previousPoint.pageY); // 移动到上一个点
+                context.lineTo(pageX,pageY); // 画线到这一个点
+                context.stroke()
+            }
+            previousPoint = { pageX, pageY }
+        }else if(penType === 'eraser'){
+            context.clearRect(pageX-5, pageY-5, 10, 10)
+        }
+
+    })
+    canvas.addEventListener('touchend', function(){
+        previousPoint = null
+    })
+
+    save.onclick = function(){
+        var canvas=document.getElementById("app");
+        var data=canvas.toDataURL("image/png");
+        var newWindow=window.open('about:blank','image from canvas');
+        newWindow.document.write("<img src='"+data+"' alt='from canvas'/>");
+    }
+</script>
+</body>
+</html>
