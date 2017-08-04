@@ -62,31 +62,30 @@
         // 监听 canvas 元素的 touchmove 事件
         canvas.addEventListener('touchmove', function (e) {
             // console.log(e);
+            e.preventDefault();
             draw(e)
         });
         
         // 鼠标离开后将前一个点变量赋值为空，这样可以书写多条不连续的线段
-        canvas.addEventListener('touchend', function (e) {
+        canvas.addEventListener('touchend', function () {
             prePoint = null;
         });
 
         // 绘画内容
         function draw(e) {
             let penType = document.querySelector('input[name="penType"]:checked').value; // 取 penType 的值
-            var { pageX, pageY } = e.touches[0]; // 拿到手指位置信息，此处为单点触控，所以角标为0
+            var {pageX, pageY} = e.touches[0]; // 拿到手指位置信息，此处为单点触控，所以角标为0
             // console.log(pageX, pageY);
             // context.fillRect(pageX, pageY, 6, 6); // 方形
             if (penType === 'pen') { // 如果是画笔：两点连线并记录前一个点
                 if (prePoint) {
                     context.strokeStyle = "orange";
-                    context.lineWidth = 6; // 路径宽度
-                    context.lineCap = 3; // 路径两端是半径为3px的圆角半圆
                     context.beginPath(); // 开始路径
                     context.moveTo(prePoint.pageX, prePoint.pageY); // 第一个点的位置
                     context.lineTo(pageX, pageY); // 第二个点的位置：连线到该点
                     context.stroke(); // 执行
                 }
-                prePoint = { pageX, pageY }
+                prePoint = {pageX, pageY}
             } else if (penType === 'eraser') { // 如果是橡皮：清除范围内痕迹
                 context.clearRect(pageX-10, pageY-10, 20, 20) // 清除绘制内容方法
             }
