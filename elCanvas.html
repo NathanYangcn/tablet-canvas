@@ -83,6 +83,7 @@
         // 监听 canvas 元素的 touchmove 事件
         canvas.addEventListener(CLICKMOVE, function (e) {
             // console.log(e);
+            e.preventDefault();
             if ( (clientflag === 0) && (start === true) ) {
                 canvas.style.cursor = 'cell'; // 改变PC端的鼠标样式
                 draw(e) // 将绘制内容抽离为一个函数
