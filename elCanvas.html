@@ -28,7 +28,7 @@
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <canvas id="app"></canvas>
     <div class="action">
         <label><input type="radio" name="penType" value="pen" checked>画笔</label>
         <label><input type="radio" name="penType" value="eraser">橡皮</label>
@@ -53,7 +53,7 @@
         }
 
         // 获取canvas元素
-        let canvas = document.getElementById('canvas');
+        let canvas = document.getElementById('app');
 
         // 获取视窗宽高
         let clientWidth = document.documentElement.clientWidth;
@@ -129,7 +129,7 @@
 
         // 预览效果
         save.onclick = function(){
-            var canvas = document.getElementById("canvas");
+            var canvas = document.getElementById("app");
             var data = canvas.toDataURL("image/png"); // 保存图片URL
             var newWindow = window.open('about:blank','image from canvas'); // 打开新窗口
             newWindow.document.write("<img src='"+data+"' alt='from canvas'/>"); // 写入图片
